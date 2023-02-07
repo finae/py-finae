@@ -1,3 +1,4 @@
-def main():
-    """Entry point for the application script"""
-    print("Call your main application code here")
+from .lib import learn, init
+
+def say_hello():
+    print('hello')
