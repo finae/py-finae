@@ -1,12 +1,16 @@
 import finae
 
-finae.init()
-
-
 @finae.learn
 def foo(name):
     print(f'im {name}')
 
 
-if __name__ == '__main__':
+@finae.exercise
+def test_foo():
+    foo('foo')
     foo('fol')
+    foo('bar')
+
+
+if __name__ == '__main__':
+    finae.run_all_exercises()
