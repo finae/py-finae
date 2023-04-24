@@ -14,6 +14,7 @@ def _register_func_or_class(function, options):
     def _finae_remote_wrapper(*args, **kwargs):
         print(f'_finae_remote_wrapper = {args}')
         return function(*args, **kwargs)
+
     class WrapperObject:
         _MAX_RECORD = 5
 
