@@ -104,6 +104,8 @@ classifiers = [  # Optional
 # https://packaging.python.org/discussions/install-requires-vs-requirements/
 dependencies = [ # Optional
   "ray[default]==2.3.0",
+  "langchain",
+  "openai",
 ]
 
 # List additional groups of dependencies here (e.g. development
