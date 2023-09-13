@@ -1,8 +1,14 @@
-from langchain.llms import OpenAI
 import os
+
+import langchain
+from langchain.cache import SQLiteCache
+from langchain.llms import OpenAI
 
 os.environ['OPENAI_API_BASE'] = "https://shale.live/v1"
 os.environ['OPENAI_API_KEY'] = "shale-/vOlxxgbDAD7f5"
+
+
+langchain.llm_cache = SQLiteCache(database_path=".langchain.db")
 
 
 def query(prompt):

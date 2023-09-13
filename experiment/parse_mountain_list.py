@@ -1,3 +1,5 @@
+import re
+
 from functools import cache
 
 # Example of LLM results
@@ -89,23 +91,27 @@ class Mountain:
         return c
 
     @cache
-    def long_altitude(self):
-        return self._text.split('-')[1].strip().replace(',', '')
-
-    @cache
     def altitude_in_meters(self):
-        l = self.long_altitude()
-        a = int(l.split('meters')[0])
-        return a
+        m = re.search(r'[\d\s,]+m', self._text)
+        if m:
+            return int(m.group(0).replace('m', '').replace(',', '').strip())
+        m = re.search(r'[\d,]+meters', self._text)
+        if m:
+            return int(m.group(0).replace('meters', '').replace(',', '').strip())
+        raise ValueError(f'can not find meters in : {self._text}')
 
     @cache
     def altitude_in_ft(self):
-        l = self.long_altitude()
-        a = int(l[l.find('(')+1:l.find(')')].replace('ft', '').strip())
-        return a
+        m = re.search(r'[\d\s,]+ft', self._text)
+        if m:
+            return int(m.group(0).replace('ft', '').replace(',', '').strip())
+        m = re.search(r'[\d,]+feet', self._text)
+        if m:
+            return int(m.group(0).replace('feet', '').replace(',', '').strip())
+        raise ValueError(f'can not find feet in : {self._text}')
 
     def __str__(self):
-        return f'{self.index()}, {self.name()}, {self.location()}, {self.altitude_in_meters()} m, {self.altitude_in_meters()} ft'
+        return f'{self.index()}, {self.name()}, {self.location()}, {self.altitude_in_meters()} m, {self.altitude_in_ft()} ft'
 
 
 def parse(input):
@@ -118,4 +124,5 @@ def parse(input):
             pass
 
 
-parse(input)
+if __name__ == '__main__':
+    parse(input)
