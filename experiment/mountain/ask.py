@@ -1,10 +1,6 @@
 
-import os
-
 from finae import ask_llm, init_cache
 from mountain import Mountain
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def get_mountains():
     prompt = """List top 50 mountains in the world. Each line is a mountain, include altitude in meters and feet."""
@@ -22,7 +18,7 @@ def get_mountains():
 
 
 if __name__ == '__main__':
-    init_cache(dir_path)
+    init_cache()
     mountains = get_mountains()
     for m in mountains:
         print(m)
