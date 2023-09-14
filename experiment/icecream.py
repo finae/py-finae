@@ -1,5 +1,5 @@
-from finae import query
+from finae import ask_llm
 
-output = query('List most common ice cream flavors')
+output = ask_llm('List most common ice cream flavors')
 
 print(output)

@@ -8,10 +8,11 @@ os.environ['OPENAI_API_BASE'] = "https://shale.live/v1"
 os.environ['OPENAI_API_KEY'] = "shale-/vOlxxgbDAD7f5"
 
 
-langchain.llm_cache = SQLiteCache(database_path=".langchain.db")
+def init_cache(dir):
+    langchain.llm_cache = SQLiteCache(database_path= os.path.join(dir, '.langchain.db'))
 
 
-def query(prompt):
+def ask_llm(prompt):
     llm = OpenAI(temperature=0.9, max_tokens=2048)
     result = llm(prompt)
     return result
