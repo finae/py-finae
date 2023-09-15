@@ -25,3 +25,18 @@ def ask_llm(prompt):
     llm = OpenAI(temperature=0.9, max_tokens=2048)
     result = llm(prompt)
     return result
+
+
+def query_llm(prompt, *argv):
+    """Query instances of given concepts from LLM."""
+    finae_concepts = [c for c in argv if hasattr(c, '__finae_parse__')]
+    output = ask_llm(prompt)
+    lines = output.split('\n')
+    results = []
+    for line in lines:
+        for cls in finae_concepts:
+            c = cls()
+            c.__finae_parse__(line)
+            if c.__finae_consistent__():
+                results.append(c)
+    return results

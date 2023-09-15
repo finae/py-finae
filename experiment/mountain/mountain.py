@@ -65,19 +65,16 @@ Note: Some of the heights listed may vary depending on the source and method of 
 @finae.Concept
 class Mountain:
 
-    def __init__(self, text):
-        self._text = text
-
     @finae.Attribute
     def index(self):
-        parts = self._text.split('.')
+        parts = self.text.split('.')
         i = int(parts[0])
         assert 1 <= i <= 100
         return i
 
     @finae.Attribute
     def long_name(self):
-        parts = self._text.split('.')[1].split('-')
+        parts = self.text.split('.')[1].split('-')
         return parts[0].strip()
 
     @finae.Attribute
@@ -94,23 +91,23 @@ class Mountain:
 
     @finae.Attribute
     def altitude_in_meters(self):
-        m = re.search(r'[\d\s,]+m', self._text)
+        m = re.search(r'[\d\s,]+m', self.text)
         if m:
             return int(m.group(0).replace('m', '').replace(',', '').strip())
-        m = re.search(r'[\d,]+meters', self._text)
+        m = re.search(r'[\d,]+meters', self.text)
         if m:
             return int(m.group(0).replace('meters', '').replace(',', '').strip())
-        raise ValueError(f'can not find meters in : {self._text}')
+        raise ValueError(f'can not find meters in : {self.text}')
 
     @finae.Attribute
     def altitude_in_ft(self):
-        m = re.search(r'[\d\s,]+ft', self._text)
+        m = re.search(r'[\d\s,]+ft', self.text)
         if m:
             return int(m.group(0).replace('ft', '').replace(',', '').strip())
-        m = re.search(r'[\d,]+feet', self._text)
+        m = re.search(r'[\d,]+feet', self.text)
         if m:
             return int(m.group(0).replace('feet', '').replace(',', '').strip())
-        raise ValueError(f'can not find feet in : {self._text}')
+        raise ValueError(f'can not find feet in : {self.text}')
 
     def __str__(self):
         return f'{self.index()}, {self.name()}, {self.location()}, {self.altitude_in_meters()} m, {self.altitude_in_ft()} ft'
@@ -120,9 +117,10 @@ def parse(input):
     lines = input.split('\n')
     for line in lines:
         try:
-            m = Mountain(line)
-            print(m.__finae_score__())
-            print(m)
+            m = Mountain()
+            m.__finae_parse__(line)
+            if m.score == 1.0:
+                print(m)
         except:
             pass
 
