@@ -1,6 +1,7 @@
 import re
-
 from functools import cache
+
+import finae
 
 # Example of LLM results
 input = """
@@ -61,36 +62,37 @@ Note: Some of the heights listed may vary depending on the source and method of 
 """
 
 
+@finae.Concept
 class Mountain:
 
     def __init__(self, text):
         self._text = text
 
-    @cache
+    @finae.Attribute
     def index(self):
         parts = self._text.split('.')
         i = int(parts[0])
         assert 1 <= i <= 100
         return i
 
-    @cache
+    @finae.Attribute
     def long_name(self):
         parts = self._text.split('.')[1].split('-')
         return parts[0].strip()
 
-    @cache
+    @finae.Attribute
     def name(self):
         l = self.long_name()
         return l[:l.find('(')].strip()
 
-    @cache
+    @finae.Attribute
     def location(self):
         l = self.long_name()
         c = l[l.find('(')+1:l.find(')')].strip()
         assert c
         return c
 
-    @cache
+    @finae.Attribute
     def altitude_in_meters(self):
         m = re.search(r'[\d\s,]+m', self._text)
         if m:
@@ -100,7 +102,7 @@ class Mountain:
             return int(m.group(0).replace('meters', '').replace(',', '').strip())
         raise ValueError(f'can not find meters in : {self._text}')
 
-    @cache
+    @finae.Attribute
     def altitude_in_ft(self):
         m = re.search(r'[\d\s,]+ft', self._text)
         if m:
@@ -119,6 +121,7 @@ def parse(input):
     for line in lines:
         try:
             m = Mountain(line)
+            print(m.__finae_score__())
             print(m)
         except:
             pass
