@@ -1,4 +1,5 @@
-from functools import cache
+import functools
+from collections import defaultdict
 
 _CONCEPTS = []
 
@@ -12,7 +13,7 @@ def _finae_score(self):
 
 
 def _finae_consistent(self):
-    return self.score == 1.0
+    return self.score >= 0.9
 
 
 def _finae_parse(self, text):
@@ -24,14 +25,18 @@ def _finae_parse(self, text):
         if method.startswith('__') or method.endswith('__'):
             continue
         m = getattr(self, method)
-        if not hasattr(m, '__finae_score_base_val__'):
+        if not hasattr(m, '__finae_weight_base_val__'):
             continue
-        score_upper_bound = score_upper_bound + m.__finae_score_base_val__
-        try:
-            m()
-            total_score = total_score + m.__finae_score_base_val__
-        except:
-            pass
+        score_upper_bound = score_upper_bound + m.__finae_weight_base_val__
+
+        ret_val = m()
+        if ret_val is None:
+            if getattr(m, '__finae_required__') is True:
+                total_score = 0
+                break
+        else:
+            total_score = total_score + m.__finae_weight_base_val__
+
     if not score_upper_bound:
         self.score = 0
     else:
@@ -47,7 +52,30 @@ def Concept(cls):
     return cls
 
 
-def Attribute(method, score=1.0):
-    method = cache(method)
-    setattr(method, '__finae_score_base_val__', score)
-    return method
+def Attribute(method=None, **kwargs):
+    def _harness(method):
+        @functools.wraps(method)
+        def _wrapper(self, *args, **kwargs):
+            if not hasattr(self, '__finae_method_cache__'):
+                setattr(self, '__finae_method_cache__', defaultdict(dict))
+
+            if method.__name__ in self.__finae_method_cache__:
+                return self.__finae_method_cache__[method.__name__]['val']
+            ret_val = None
+            try:
+                ret_val = method(self, *args, **kwargs)
+            except Exception as e:
+                self.__finae_method_cache__[method.__name__]['exception'] = e
+                ret_val = None
+            self.__finae_method_cache__[method.__name__]['val'] = ret_val
+            return ret_val
+
+        setattr(_wrapper, '__finae_weight_base_val__',
+                kwargs.get('weight', 1.0))
+        setattr(_wrapper, '__finae_required__', kwargs.get('required', False))
+        return _wrapper
+
+    if method is None:
+        return _harness
+    else:
+        return _harness(method)

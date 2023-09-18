@@ -99,7 +99,7 @@ class Mountain:
             return int(m.group(0).replace('meters', '').replace(',', '').strip())
         raise ValueError(f'can not find meters in : {self.text}')
 
-    @finae.Attribute
+    @finae.Attribute(required=False)
     def altitude_in_ft(self):
         m = re.search(r'[\d\s,]+ft', self.text)
         if m:
