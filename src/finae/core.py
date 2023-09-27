@@ -1,6 +1,8 @@
 import functools
 from collections import defaultdict
 
+from .llm import ask_llm
+
 _CONCEPTS = []
 
 
@@ -43,7 +45,26 @@ def _finae_parse(self, text):
         self.score = total_score / score_upper_bound
 
 
+@classmethod
+def _query_llm(cls, prompt):
+    """Query instances for the given Concept class."""
+    output = ask_llm(prompt)
+    lines = output.split('\n')
+    results = []
+    for line in lines:
+        c = cls()
+        c.__finae_parse__(line)
+        if c.__finae_consistent__():
+            results.append(c)
+    return results
+
+
 def Concept(cls):
+
+    # Public methods
+    setattr(cls, 'query_llm', _query_llm)
+
+    # Private methods
     setattr(cls, '__finae_text__', _finae_text)
     setattr(cls, '__finae_score__', _finae_score)
     setattr(cls, '__finae_consistent__', _finae_consistent)

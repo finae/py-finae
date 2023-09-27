@@ -27,9 +27,9 @@ def ask_llm(prompt):
     return result
 
 
-def query_llm(prompt, *argv):
-    """Query instances of given concepts from LLM."""
-    finae_concepts = [c for c in argv if hasattr(c, '__finae_parse__')]
+def query_concepts(prompt, *concepts):
+    """Query instances for given Concepts from LLM."""
+    finae_concepts = [c for c in concepts if hasattr(c, '__finae_parse__')]
     output = ask_llm(prompt)
     lines = output.split('\n')
     results = []
