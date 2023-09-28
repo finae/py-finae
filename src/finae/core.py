@@ -100,3 +100,41 @@ def Attribute(method=None, **kwargs):
         return _harness
     else:
         return _harness(method)
+
+
+def _line_by_line_parser(llm_output, concepts):
+    lines = llm_output.split('\n')
+    results = []
+    # Basic line-by-line parser.
+    for line in lines:
+        for cls in concepts:
+            c = cls()
+            c.__finae_parse__(line)
+            if c.__finae_consistent__():
+                results.append(c)
+    return results
+
+
+class Extraction:
+    """Multiple-round, same prompt concepts extraction.
+
+    Be able to record history and replay the extraction.
+    """
+
+    def __init__(self, prompt, concepts):
+        self._concepts = [c for c in concepts if hasattr(c, '__finae_parse__')]
+
+        self.prompt = prompt
+        self.llm_outputs = []
+        self.extracted_concepts = []
+
+    def extract(self, rounds=1):
+        print('=== Extraction prompt:\n', self.prompt)
+        for i in range(rounds):
+            print('=== Round #', i)
+            output = ask_llm(self.prompt)
+            print(output)
+            results = _line_by_line_parser(output, self._concepts)
+            print('=== Extracted ', len(results))
+            self.llm_outputs.append(output)
+            self.extracted_concepts.append(results)
