@@ -1,5 +1,4 @@
 import re
-from functools import cache
 
 import finae
 
@@ -65,7 +64,7 @@ Note: Some of the heights listed may vary depending on the source and method of 
 @finae.Concept
 class Mountain:
 
-    @finae.Attribute
+    @finae.Attribute(weight=0.01, required=False)
     def index(self):
         parts = self.text.split('.')
         i = int(parts[0])
@@ -81,6 +80,15 @@ class Mountain:
     def name(self):
         l = self.long_name()
         return l[:l.find('(')].strip()
+    
+    def name_make_sense(self):
+        name = self.name()
+        prompt = f'Is {name} a mountain?'
+        print('------')
+        print(prompt)
+        r = finae.ask_llm(prompt)
+        print('------')
+        print(r)
 
     @finae.Attribute
     def location(self):
@@ -114,15 +122,19 @@ class Mountain:
 
 
 def parse(input):
+    mountains = []
     lines = input.split('\n')
     for line in lines:
-        try:
-            m = Mountain()
-            m.__finae_parse__(line)
-            if m.score == 1.0:
-                print(m)
-        except:
-            pass
+        m = Mountain()
+        m.__finae_parse__(line)
+        if m.score == 1.0:
+            print(m)
+            mountains.append(m)
+
+    print()
+    
+    for m in mountains:
+        m.name_make_sense()
 
 
 if __name__ == '__main__':
