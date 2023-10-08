@@ -33,6 +33,50 @@ for m in mountains:
     print(m.name())
 ```
 
+Date
+```python
+d = Date('independence day of United States')
+print(d)
+
+d = Date('1995/03/01')
+print(d)
+
+d = Date('03-01-1995')
+print(d)
+
+d = Date('year 1995, March, first')
+print(d)
+
+d = Date('the day after 1995/03/01')
+print(d)
+
+d = Date('the day after ', d)
+print(d)
+```
+
+
+Array
+```python
+a = Array('[1, 2, 3, 4]')
+print(a)
+
+a = Array('1, 2, 3, 4')
+print(a)
+
+a = Array('1 2 5 6 10')
+print(a)
+
+a = Array('1 to 4')
+print(a)
+
+a = Array('1 to 4, inclusive')
+print(a)
+
+a = Array('give me an array of integer, length less than 20')
+print(a)
+
+```
+
 
 Numpy, pandas
 ```python
@@ -57,7 +101,37 @@ bar    B    z
 print(t)
 ```
 
-## Dev
+Finae class is called concept.
+
+
+```python
+@finae.Concept
+class Mountain:
+    ...
+```
+
+
+Finae concept memories samples it processed (up to 100 for example, and ranked by some scores).
+
+
+```python
+for m in Mountain.samples():
+    print(m)
+```
+
+Finae concept memories/caches the way it parses the input.
+
+
+```python
+d = Date('independence day of United States')
+d = Date('independence day of United States')  # read from cache
+d = Date('independence day of United States')  # read from cache
+```
+
+The cache is local database file or py that can be checked-in to codebase and version-controlled. (Or delete if want to drop the cache.)
+
+
+## Install
 
 ```
 > pip install -e .
