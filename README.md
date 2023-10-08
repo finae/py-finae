@@ -16,6 +16,15 @@ Finae's vision is to create a new language (human-computer interface) in between
 
 ### Design Ideas
 
+#### Finae class is called concept.
+
+
+```python
+@finae.Concept
+class Mountain:
+    ...
+```
+#### Concept Examples
 Mountain
 
 ```python
@@ -31,6 +40,14 @@ print(m.altitude())
 mountains = Mountain.query('Top 50 mountains in the wolrd')
 for m in mountains:
     print(m.name())
+```
+
+Integer/Float
+
+```python
+i = Integer('give me a code generate integer in python')
+i = Integer('show me an example of Python integer')
+i = Integer('show me an example of Python float')
 ```
 
 Date
@@ -101,25 +118,20 @@ bar    B    z
 print(t)
 ```
 
-Finae class is called concept.
 
 
-```python
-@finae.Concept
-class Mountain:
-    ...
-```
+#### Finae concept memories samples it has processed
 
-
-Finae concept memories samples it processed (up to 100 for example, and ranked by some scores).
-
+E.g. up to 100 for example, and ranked by some scores, keep LRU.
 
 ```python
 for m in Mountain.samples():
     print(m)
 ```
 
-Finae concept memories/caches the way it parses the input.
+#### Finae concept memories/caches the way it parses the input.
+
+The cache is local database file or py that can be checked-in to codebase and version-controlled. (Or delete if want to drop the cache.)
 
 
 ```python
@@ -128,8 +140,10 @@ d = Date('independence day of United States')  # read from cache
 d = Date('independence day of United States')  # read from cache
 ```
 
-The cache is local database file or py that can be checked-in to codebase and version-controlled. (Or delete if want to drop the cache.)
 
+```python
+
+``
 
 ## Install
 
