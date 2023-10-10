@@ -56,6 +56,9 @@ def _constructor(self, text):
     self.__finae_parse__()
 
 
+def _finae_id(self):
+    return self.__finae_data__['id']
+
 def _finae_text(self):
     return self.__finae_data__['text']
 
@@ -108,6 +111,7 @@ def _query_llm(cls, prompt):
 def Concept(cls):
     setattr(cls, '__init__', _constructor)
     setattr(cls, 'query_llm', _query_llm)
+    setattr(cls, '__finae_id__', _finae_id)
     setattr(cls, '__finae_text__', _finae_text)
     setattr(cls, '__finae_score__', _finae_score)
     setattr(cls, '__finae_consistent__', _finae_consistent)
