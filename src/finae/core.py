@@ -3,7 +3,13 @@ from collections import defaultdict
 
 from .llm import ask_llm
 
-_CONCEPTS = []
+_CONCEPTS_REGISTRY = []
+
+
+def _constructor(self, text):
+    """Text could be anything to be parse, prompts, serialized string etc."""
+    self.text = text
+    self.__finae_parse__()
 
 
 def _finae_text(self):
@@ -18,9 +24,7 @@ def _finae_consistent(self):
     return self.score >= 0.9
 
 
-def _finae_parse(self, text):
-    self.text = text
-
+def _finae_parse(self):
     score_upper_bound = 0
     total_score = 0
     for method in dir(self):
@@ -47,21 +51,20 @@ def _finae_parse(self, text):
 
 @classmethod
 def _query_llm(cls, prompt):
-    """Query instances for the given Concept class."""
+    """Simple extraction as example."""
     output = ask_llm(prompt)
     lines = output.split('\n')
     results = []
     for line in lines:
-        c = cls()
-        c.__finae_parse__(line)
+        c = cls(line)
         if c.__finae_consistent__():
             results.append(c)
     return results
 
 
 def Concept(cls):
-
     # Public methods
+    setattr(cls, '__init__', _constructor)
     setattr(cls, 'query_llm', _query_llm)
 
     # Private methods
@@ -69,7 +72,8 @@ def Concept(cls):
     setattr(cls, '__finae_score__', _finae_score)
     setattr(cls, '__finae_consistent__', _finae_consistent)
     setattr(cls, '__finae_parse__', _finae_parse)
-    _CONCEPTS.append(cls)
+
+    _CONCEPTS_REGISTRY.append(cls)
     return cls
 
 
@@ -108,8 +112,7 @@ def _line_by_line_parser(llm_output, concepts):
     # Basic line-by-line parser.
     for line in lines:
         for cls in concepts:
-            c = cls()
-            c.__finae_parse__(line)
+            c = cls(line)
             if c.__finae_consistent__():
                 results.append(c)
     return results

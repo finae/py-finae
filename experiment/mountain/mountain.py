@@ -125,16 +125,15 @@ def parse(input):
     mountains = []
     lines = input.split('\n')
     for line in lines:
-        m = Mountain()
-        m.__finae_parse__(line)
+        m = Mountain(line)
         if m.score == 1.0:
             print(m)
             mountains.append(m)
 
     print()
     
-    for m in mountains:
-        m.name_make_sense()
+    # for m in mountains:
+    #     m.name_make_sense()
 
 
 if __name__ == '__main__':
