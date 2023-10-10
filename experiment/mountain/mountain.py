@@ -1,4 +1,5 @@
 import re
+import pprint
 
 import finae
 
@@ -80,7 +81,7 @@ class Mountain:
     def name(self):
         l = self.long_name()
         return l[:l.find('(')].strip()
-    
+
     def name_make_sense(self):
         name = self.name()
         prompt = f'Is {name} a mountain?'
@@ -130,8 +131,8 @@ def parse(input):
             print(m, m.__finae_score__())
             mountains.append(m)
 
-    print()
-    
+    pprint.pprint(mountains[0].__finae_data__)
+
     # for m in mountains:
     #     m.name_make_sense()
 

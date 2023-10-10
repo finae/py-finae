@@ -48,9 +48,10 @@ class Extraction:
 def _constructor(self, text):
     """Text could be anything to be parse, prompts, serialized string etc."""
     self.__finae_data__ = {
-        'id': uuid.uuid4(),
+        'id': str(uuid.uuid4()),
         'text': text,
         'score': 0,
+        'method_cache': defaultdict(dict),
     }
     self.__finae_parse__()
 
@@ -74,17 +75,19 @@ def _finae_parse(self):
         if method.startswith('__') or method.endswith('__'):
             continue
         m = getattr(self, method)
-        if not hasattr(m, '__finae_weight_base_val__'):
+        if not hasattr(m, '__finae_attribute_weight_base_val__'):
             continue
-        score_upper_bound = score_upper_bound + m.__finae_weight_base_val__
+
+        weight_base_val = m.__finae_attribute_weight_base_val__
+        score_upper_bound = score_upper_bound + weight_base_val
 
         ret_val = m()
         if ret_val is None:
-            if getattr(m, '__finae_required__') is True:
+            if getattr(m, '__finae_attribute_required__') is True:
                 total_score = 0
                 break
         else:
-            total_score = total_score + m.__finae_weight_base_val__
+            total_score = total_score + weight_base_val
 
     if not score_upper_bound:
         normalized_score = 0
@@ -118,23 +121,21 @@ def Attribute(method=None, **kwargs):
     def _harness(method):
         @functools.wraps(method)
         def _wrapper(self, *args, **kwargs):
-            if not hasattr(self, '__finae_method_cache__'):
-                setattr(self, '__finae_method_cache__', defaultdict(dict))
-
-            if method.__name__ in self.__finae_method_cache__:
-                return self.__finae_method_cache__[method.__name__]['val']
+            method_cache = self.__finae_data__['method_cache']
+            if method.__name__ in method_cache:
+                return method_cache[method.__name__]['val']
             ret_val = None
             try:
                 ret_val = method(self, *args, **kwargs)
             except Exception as e:
-                self.__finae_method_cache__[method.__name__]['exception'] = e
+                method_cache[method.__name__]['exception'] = e
                 ret_val = None
-            self.__finae_method_cache__[method.__name__]['val'] = ret_val
+            method_cache[method.__name__]['val'] = ret_val
             return ret_val
 
-        setattr(_wrapper, '__finae_weight_base_val__',
+        setattr(_wrapper, '__finae_attribute_weight_base_val__',
                 kwargs.get('weight', 1.0))
-        setattr(_wrapper, '__finae_required__', kwargs.get('required', False))
+        setattr(_wrapper, '__finae_attribute_required__', kwargs.get('required', False))
         return _wrapper
 
     if method is None:
