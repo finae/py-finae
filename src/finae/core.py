@@ -6,6 +6,44 @@ from .llm import ask_llm
 _CONCEPTS_REGISTRY = []
 
 
+def _line_by_line_parser(llm_output, concepts):
+    lines = llm_output.split('\n')
+    results = []
+    # Basic line-by-line parser.
+    for line in lines:
+        for cls in concepts:
+            c = cls(line)
+            if c.__finae_consistent__():
+                results.append(c)
+    return results
+
+
+class Extraction:
+    """Multiple-round, same prompt concepts extraction.
+
+    Be able to record history and replay the extraction.
+    """
+
+    def __init__(self, prompt, concepts):
+        self._concepts = [c for c in concepts if hasattr(c, '__finae_parse__')]
+
+        self.prompt = prompt
+        self.llm_outputs = []
+        self.extracted_concepts = []
+
+    def extract(self, rounds=1):
+        print('=== Extraction prompt:\n', self.prompt)
+        for i in range(rounds):
+            print('=== Round #', i)
+            output = ask_llm(self.prompt)
+            print(output)
+            results = _line_by_line_parser(output, self._concepts)
+            print('=== Extracted ', len(results))
+            self.llm_outputs.append(output)
+            self.extracted_concepts.extend(results)
+        return self.extracted_concepts
+
+
 def _constructor(self, text):
     """Text could be anything to be parse, prompts, serialized string etc."""
     self.text = text
@@ -52,13 +90,8 @@ def _finae_parse(self):
 @classmethod
 def _query_llm(cls, prompt):
     """Simple extraction as example."""
-    output = ask_llm(prompt)
-    lines = output.split('\n')
-    results = []
-    for line in lines:
-        c = cls(line)
-        if c.__finae_consistent__():
-            results.append(c)
+    extraction = Extraction(prompt, [cls])
+    results = extraction.extract(rounds=1)
     return results
 
 
@@ -104,40 +137,3 @@ def Attribute(method=None, **kwargs):
         return _harness
     else:
         return _harness(method)
-
-
-def _line_by_line_parser(llm_output, concepts):
-    lines = llm_output.split('\n')
-    results = []
-    # Basic line-by-line parser.
-    for line in lines:
-        for cls in concepts:
-            c = cls(line)
-            if c.__finae_consistent__():
-                results.append(c)
-    return results
-
-
-class Extraction:
-    """Multiple-round, same prompt concepts extraction.
-
-    Be able to record history and replay the extraction.
-    """
-
-    def __init__(self, prompt, concepts):
-        self._concepts = [c for c in concepts if hasattr(c, '__finae_parse__')]
-
-        self.prompt = prompt
-        self.llm_outputs = []
-        self.extracted_concepts = []
-
-    def extract(self, rounds=1):
-        print('=== Extraction prompt:\n', self.prompt)
-        for i in range(rounds):
-            print('=== Round #', i)
-            output = ask_llm(self.prompt)
-            print(output)
-            results = _line_by_line_parser(output, self._concepts)
-            print('=== Extracted ', len(results))
-            self.llm_outputs.append(output)
-            self.extracted_concepts.append(results)
