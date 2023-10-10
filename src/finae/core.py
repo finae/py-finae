@@ -1,3 +1,4 @@
+import uuid
 import functools
 from collections import defaultdict
 
@@ -46,20 +47,24 @@ class Extraction:
 
 def _constructor(self, text):
     """Text could be anything to be parse, prompts, serialized string etc."""
-    self.text = text
+    self.__finae_data__ = {
+        'id': uuid.uuid4(),
+        'text': text,
+        'score': 0,
+    }
     self.__finae_parse__()
 
 
 def _finae_text(self):
-    return self.text
+    return self.__finae_data__['text']
 
 
 def _finae_score(self):
-    return self.score
+    return self.__finae_data__['score']
 
 
 def _finae_consistent(self):
-    return self.score >= 0.9
+    return self.__finae_score__() >= 1.0
 
 
 def _finae_parse(self):
@@ -82,9 +87,11 @@ def _finae_parse(self):
             total_score = total_score + m.__finae_weight_base_val__
 
     if not score_upper_bound:
-        self.score = 0
+        normalized_score = 0
     else:
-        self.score = total_score / score_upper_bound
+        normalized_score = total_score / score_upper_bound
+
+    self.__finae_data__['score'] = normalized_score
 
 
 @classmethod
@@ -96,11 +103,8 @@ def _query_llm(cls, prompt):
 
 
 def Concept(cls):
-    # Public methods
     setattr(cls, '__init__', _constructor)
     setattr(cls, 'query_llm', _query_llm)
-
-    # Private methods
     setattr(cls, '__finae_text__', _finae_text)
     setattr(cls, '__finae_score__', _finae_score)
     setattr(cls, '__finae_consistent__', _finae_consistent)
