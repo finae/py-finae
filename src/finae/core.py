@@ -1,6 +1,5 @@
 import uuid
 import functools
-from collections import defaultdict
 
 from .llm import ask_llm
 
@@ -51,7 +50,7 @@ def _constructor(self, text):
         'id': str(uuid.uuid4()),
         'text': text,
         'score': 0,
-        'method_cache': defaultdict(dict),
+        'method_cache': dict(),
     }
     self.__finae_parse__()
 
@@ -128,6 +127,8 @@ def Attribute(method=None, **kwargs):
             method_cache = self.__finae_data__['method_cache']
             if method.__name__ in method_cache:
                 return method_cache[method.__name__]['val']
+            else:
+                method_cache[method.__name__] = dict()
             ret_val = None
             try:
                 ret_val = method(self, *args, **kwargs)
