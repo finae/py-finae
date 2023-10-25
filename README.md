@@ -1,18 +1,16 @@
 # py-finae
 
-FIANE is a new way to use/interactive with LLMs.
+Finae is a new programming paradigm (like Python + AI) to make coding easy/flexible for everyone.
 
-It's a framework thats make you write simple guidances/hints and extract massive structured and verified knowledge from LLMs.
+It's a framework that you write simple guidance to generate scenario UIs and use them to approach to the final a complex app/program iteratively.
 
-The extracted data are native Python objects and can be used in any Python programs. You can also easily re-use, combine or share your extractions with others to create new ones.
+It's also a framework where you can write simple guidances/hints and extract massive structured and verified knowledge from LLMs. The extracted data are native Python objects and can be used in any Python programs. You can also easily re-use, combine or share your extractions with others to create new ones.
 
+### More thoughts behind Finae
 
-### More about Finae
+It's not people loving chatbots, long conversations or sophisticated prmopts. It's just so far the best/easist intereface for people to enjoy rich computing powers (AI).
 
-It's not people loving chatbots with long prompts, it's so far the best way for general public to enjoy the computing powers (so called AI).
-
-Finae's vision is to create a new language (human-computer interface) in between natural language and Python (more concised than natural language, less rigorous than Python), and experiemnt a new programming paradigm, I call it **keyword-oriented** or **hint-oriented** programming.
-
+Finae's vision is to create a new human-computer interaction in-between natural language and Python (rigorous than natural language, concised than Python), so called **keyword-oriented** or **hint-oriented** programming styles.
 
 ### Design Ideas
 
@@ -140,11 +138,6 @@ d = Date('independence day of United States')  # read from cache
 d = Date('independence day of United States')  # read from cache
 ```
 
-
-```python
-
-``
-
 ## Install
 
 ```
@@ -152,7 +145,7 @@ d = Date('independence day of United States')  # read from cache
 ```
 
 
-## For project owner/maintainer
+## Owner/maintainer
 
 ### Publish to pip hub
 
