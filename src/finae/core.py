@@ -18,6 +18,20 @@ def _line_by_line_parser(llm_output, concepts):
     return results
 
 
+class Conversation:
+
+    def __init__(self, input):
+        self.id = str(uuid.uuid4()),
+        self.input = input
+        self.output = ask_llm(input)
+
+    def __str__(self):
+        return f'{self.input}\n--->\n{self.output}'
+
+    def line_by_line_parse(self, concepts):
+        return _line_by_line_parser(self.output, concepts)
+
+
 class Extraction:
     """Multiple-round, same prompt concepts extraction.
 
@@ -27,19 +41,19 @@ class Extraction:
     def __init__(self, prompt, concepts):
         self._concepts = [c for c in concepts if hasattr(c, '__finae_parse__')]
 
+        self.id = str(uuid.uuid4()),
         self.prompt = prompt
-        self.llm_outputs = []
+        self.conversations = []
         self.extracted_concepts = []
 
     def extract(self, rounds=1):
         print('=== Extraction prompt:\n', self.prompt)
         for i in range(rounds):
             print('=== Round #', i)
-            output = ask_llm(self.prompt)
-            print(output)
-            results = _line_by_line_parser(output, self._concepts)
+            c = Conversation(self.prompt)
+            print(c)
+            results = c.line_by_line_parse(self._concepts)
             print('=== Extracted ', len(results))
-            self.llm_outputs.append(output)
             self.extracted_concepts.extend(results)
         return self.extracted_concepts
 
@@ -57,6 +71,7 @@ def _constructor(self, text):
 
 def _finae_id(self):
     return self.__finae_data__['id']
+
 
 def _finae_text(self):
     return self.__finae_data__['text']
@@ -140,7 +155,8 @@ def Attribute(method=None, **kwargs):
 
         setattr(_wrapper, '__finae_attribute_weight_base_val__',
                 kwargs.get('weight', 1.0))
-        setattr(_wrapper, '__finae_attribute_required__', kwargs.get('required', False))
+        setattr(_wrapper, '__finae_attribute_required__',
+                kwargs.get('required', False))
         return _wrapper
 
     if method is None:

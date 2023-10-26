@@ -84,7 +84,7 @@ class Mountain:
 
     def name_make_sense(self):
         name = self.name()
-        prompt = f'Is {name} a mountain?'
+        prompt = f'Is {name} a mountain? yes or no'
         print('------')
         print(prompt)
         r = finae.ask_llm(prompt)
