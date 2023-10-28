@@ -2,15 +2,15 @@
 
 **(still early and under heavy development)**
 
-Finae is a new data-driven programming languange (think about Python + AI). It aims to make coding flexible and building apps easy for everyone.
+Finae is a new data-driven programming languange (think about Python + AI). It aims to make coding easier and streamline apps development for all.
 
-It's a framework where you can write simple guidance to create `scenario UI` and use it to extract data from AI (LLMs) and approach to an app eventually. The extracted data/apps can be shared with others and used as build blocks to create new apps.
+It's a framework where you can write simple guidance to create `scenario UI` and use it to extract data/code from AI (LLMs) and approach to an app eventually. The extracted objects are build blocks and can be shared/re-used to create new apps.
 
 ### Thoughts behind Finae
 
-It's not people loving chatbots, long conversations or sophisticated prmopts. It's just so far the best/easist intereface for people to enjoy rich computing powers (AI).
+It's not people like using chatbots, long conversations or sophisticated prompts. It's just so far the best intereface for general public to enjoy the computing powers. We believe there should be better ways to interact than long chat.
 
-Finae's vision is to create a new human-computer interaction in-between natural language and Python (rigorous than natural language, concised than Python), so called **keyword-oriented** or **hint-oriented** programming styles.
+Finae's vision is to create a new human-computer interaction, in-between natural language and Python (rigorous than natural language, concised than Python), so called **keyword-oriented** or **hint-oriented** programming styles.
 
 ### Design Idea
 
