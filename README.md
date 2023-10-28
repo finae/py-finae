@@ -1,18 +1,18 @@
-# py-finae
+# py-finae 
 
-Finae is a new programming paradigm (like Python + AI) to make coding easy/flexible for everyone.
+**(still early and under heavy development)**
 
-It's a framework that you write simple guidance to generate scenario UIs and use them to approach to the final a complex app/program iteratively.
+Finae is a new data-driven programming languange (think about Python + AI). It aims to make coding flexible and building apps easy for everyone.
 
-It's also a framework where you can write simple guidances/hints and extract massive structured and verified knowledge from LLMs. The extracted data are native Python objects and can be used in any Python programs. You can also easily re-use, combine or share your extractions with others to create new ones.
+It's a framework where you can write simple guidance to create `scenario UI` and use it to extract data from AI (LLMs) and approach to an app eventually. The extracted data/apps can be shared with others and used as build blocks to create new apps.
 
-### More thoughts behind Finae
+### Thoughts behind Finae
 
 It's not people loving chatbots, long conversations or sophisticated prmopts. It's just so far the best/easist intereface for people to enjoy rich computing powers (AI).
 
 Finae's vision is to create a new human-computer interaction in-between natural language and Python (rigorous than natural language, concised than Python), so called **keyword-oriented** or **hint-oriented** programming styles.
 
-### Design Ideas
+### Design Idea
 
 #### Finae class is called concept.
 
@@ -21,7 +21,16 @@ Finae's vision is to create a new human-computer interaction in-between natural 
 @finae.Concept
 class Mountain:
     ...
+
+    @finae.Attribute
+    def name(self):
+        ...
+
+    @finae.Attribute
+    def location(self):
+        ...
 ```
+
 #### Concept Examples
 Mountain
 
