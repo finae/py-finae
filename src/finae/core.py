@@ -124,7 +124,7 @@ def _query_llm(cls, prompt):
 
 def Concept(cls):
     setattr(cls, '__init__', _constructor)
-    setattr(cls, 'query_llm', _query_llm)
+    setattr(cls, '__finae_query_llm__', _query_llm)
     setattr(cls, '__finae_id__', _finae_id)
     setattr(cls, '__finae_text__', _finae_text)
     setattr(cls, '__finae_score__', _finae_score)
