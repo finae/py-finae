@@ -1,5 +1,9 @@
-import uuid
 import functools
+import inspect
+import os
+import pickle
+import pprint
+import uuid
 
 from .llm import ask_llm
 
@@ -60,13 +64,20 @@ class Extraction:
 
 def _constructor(self, text):
     """Text could be anything to be parse, prompts, serialized string etc."""
-    self.__finae_data__ = {
-        'id': str(uuid.uuid4()),
-        'text': text,
-        'score': 0,
-        'method_cache': dict(),
-    }
-    self.__finae_parse__()
+    db = self.__finae_database__
+    from_cache = db.retrieve_by_text(text)
+    if from_cache:
+        self.__finae_data__ = from_cache
+    else:
+        self.__finae_data__ = {
+            'id': str(uuid.uuid4()),
+            'text': text,
+            'score': 0,
+            'method_cache': dict(),
+        }
+        self.__finae_parse__()
+        if self.__finae_consistent__():
+            db.insert(self.__finae_data__)
 
 
 def _finae_id(self):
@@ -85,16 +96,24 @@ def _finae_consistent(self):
     return self.__finae_score__() >= 1.0
 
 
+@classmethod
+def _finae_all_attributes(cls):
+    attributes = []
+    for method in dir(cls):
+        if method.startswith('__') or method.endswith('__'):
+            continue
+        m = getattr(cls, method)
+        if not hasattr(m, '__finae_attribute_weight_base_val__'):
+            continue
+        attributes.append(method)
+    return attributes
+
+
 def _finae_parse(self):
     score_upper_bound = 0
     total_score = 0
-    for method in dir(self):
-        if method.startswith('__') or method.endswith('__'):
-            continue
+    for method in self.__finae_all_attributes__():
         m = getattr(self, method)
-        if not hasattr(m, '__finae_attribute_weight_base_val__'):
-            continue
-
         weight_base_val = m.__finae_attribute_weight_base_val__
         score_upper_bound = score_upper_bound + weight_base_val
 
@@ -115,11 +134,66 @@ def _finae_parse(self):
 
 
 @classmethod
+def _finae_debug(cls):
+    db = cls.__finae_database__
+    db.print()
+
+
+@classmethod
 def _query_llm(cls, prompt):
     """Simple extraction as example."""
     extraction = Extraction(prompt, [cls])
     results = extraction.extract(rounds=1)
     return results
+
+
+class _ConceptDatabase:
+
+    def __init__(self, given_cls):
+        self._given_cls = given_cls
+        self._filedb_path = self._get_filedb_path()
+
+        # text -> datapoint
+        self._dataframe = self._create_or_load_file_db()
+
+    def _get_filedb_path(self):
+        curframe = inspect.currentframe()
+        calframe = inspect.getouterframes(curframe, 2)
+        filepath = os.path.realpath(calframe[3][1])
+        dirpath, filename = os.path.split(filepath)
+
+        class_name = self._given_cls.__name__
+        database_filepath = os.path.join(
+            dirpath, f'{filename}.{class_name}.finae')
+        return database_filepath
+
+    def _create_dataframe(self):
+        return dict()
+
+    def _create_or_load_file_db(self):
+        dataframe = None
+        if os.path.exists(self._filedb_path):
+            # TODO Database file SQLite.
+            with open(self._filedb_path, 'rb') as f:
+                dataframe = pickle.load(f)
+        else:
+            dataframe = self._create_dataframe()
+        return dataframe
+
+    def retrieve_by_text(self, text):
+        return self._dataframe.get(text, None)
+
+    def insert(self, datapoint):
+        self._dataframe[datapoint['text']] = datapoint
+        self.save()
+
+    def save(self):
+        with open(self._filedb_path, 'wb') as f:
+            pickle.dump(self._dataframe, f, pickle.HIGHEST_PROTOCOL)
+
+    def print(self):
+        print(self._filedb_path)
+        pprint.pprint(self._dataframe)
 
 
 def Concept(cls):
@@ -130,6 +204,9 @@ def Concept(cls):
     setattr(cls, '__finae_score__', _finae_score)
     setattr(cls, '__finae_consistent__', _finae_consistent)
     setattr(cls, '__finae_parse__', _finae_parse)
+    setattr(cls, '__finae_all_attributes__', _finae_all_attributes)
+    setattr(cls, '__finae_database__', _ConceptDatabase(cls))
+    setattr(cls, '__finae_debug__', _finae_debug)
 
     _CONCEPTS_REGISTRY.append(cls)
     return cls

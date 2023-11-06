@@ -131,7 +131,8 @@ def parse(input):
             print(m, m.__finae_score__())
             mountains.append(m)
 
-    pprint.pprint(mountains[0].__finae_data__)
+    Mountain.__finae_debug__()
+    # pprint.pprint(mountains[0].__finae_data__)
 
     # for m in mountains:
     #     m.name_make_sense()

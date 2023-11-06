@@ -105,7 +105,6 @@ classifiers = [  # Optional
 dependencies = [ # Optional
   "langchain",
   "openai",
-  "pandas",
   "ray[default]==2.6.0",
 ]
 
