@@ -5,7 +5,8 @@ import langchain
 from langchain.cache import SQLiteCache
 from langchain.llms import OpenAI
 
-os.environ['OPENAI_API_BASE'] = "https://shale.live/v1"
+# os.environ['OPENAI_API_BASE'] = "https://shale.live/v1"
+os.environ['OPENAI_API_BASE'] = "http://localhost:8000/v1"
 os.environ['OPENAI_API_KEY'] = "shale-/vOlxxgbDAD7f5"
 
 
@@ -22,6 +23,6 @@ def init_cache(dir=None):
 
 
 def ask_llm(prompt):
-    llm = OpenAI(temperature=0.9, max_tokens=2048)
+    llm = OpenAI(temperature=0.9, max_tokens=2048, model='Mistral-7B-Instruct-v0.1')
     result = llm(prompt)
     return result
