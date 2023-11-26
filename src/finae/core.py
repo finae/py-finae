@@ -110,12 +110,12 @@ def _finae_all_attributes(cls):
 
 
 def _finae_parse(self):
-    score_upper_bound = 0
+    total_weight = sum([getattr(self, method).__finae_attribute_weight_base_val__
+                        for method in self.__finae_all_attributes__()])
     total_score = 0
     for method in self.__finae_all_attributes__():
         m = getattr(self, method)
         weight_base_val = m.__finae_attribute_weight_base_val__
-        score_upper_bound = score_upper_bound + weight_base_val
 
         ret_val = m()
         if ret_val is None:
@@ -125,10 +125,10 @@ def _finae_parse(self):
         else:
             total_score = total_score + weight_base_val
 
-    if not score_upper_bound:
+    if not total_weight:
         normalized_score = 0
     else:
-        normalized_score = total_score / score_upper_bound
+        normalized_score = total_score / total_weight
 
     self.__finae_data__['score'] = normalized_score
 
