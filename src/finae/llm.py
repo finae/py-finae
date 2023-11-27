@@ -9,7 +9,7 @@ from langchain.llms import OpenAI
 os.environ['OPENAI_API_BASE'] = "http://localhost:8000/v1"
 os.environ['OPENAI_API_KEY'] = "shale-/vOlxxgbDAD7f5"
 
-_MODEL = 'Mistral-7B-Instruct-v0.1'
+_MODEL = 'OpenHermes-2.5-Mistral-7B'
 
 def init_cache(dir=None):
     if dir is None:
@@ -24,6 +24,6 @@ def init_cache(dir=None):
 
 
 def ask_llm(prompt):
-    llm = OpenAI(temperature=0.9, max_tokens=2048, model=_MODEL)
+    llm = OpenAI(temperature=0.7, max_tokens=2048, model=_MODEL)
     result = llm(prompt)
     return result
