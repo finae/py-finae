@@ -27,9 +27,11 @@ def init_cache(dir=None):
     langchain.llm_cache = SQLiteCache(database_path=database_path)
 
 
-def ask_llm(input, system=_DEFAULT_SYSTEM):
-    prompt = ChatPromptTemplate.from_messages(
-        [('system', system), ('human', '{input}')])
+def ask_llm(input, system=_DEFAULT_SYSTEM, history=None):
+    if history is None or not isinstance(history, list):
+        history = []
+    conversations = [('system', system)] + history + [('human', '{input}')]
+    prompt = ChatPromptTemplate.from_messages(conversations)
     llm = ChatOpenAI(temperature=0.7, max_tokens=512, model_name=_MODEL)
     chain = prompt | llm | StrOutputParser()
     return chain.invoke({'input': input})
