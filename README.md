@@ -1,18 +1,23 @@
-# py-finae 
+# 😆Finae 
 
-**(still early and under heavy development)**
+Contact Ning Ren (renning22@gmail.com) for discussion, contribution or ☕.
 
-Finae is a new data-driven programming languange (think about Python + AI). It aims to make coding easier and streamline apps development for all.
+## (Draft)
 
-It's a framework where you can write simple guidance to create `scenario UI` and use it to extract data/code from AI (LLMs) and approach to an app eventually. The extracted objects are build blocks and can be shared/re-used to create new apps.
+Finae's vision is to build a AI-powered programming languange and greatly simplify programming.
 
-### Thoughts behind Finae
+For now, Finae can be used as a tool to more easily work with LLMs. With simple configurations, LLMs output turns into stable and easy-to-process Python objects.
 
-It's not people like using chatbots, long conversations or sophisticated prompts. It's just so far the best intereface for general public to enjoy the computing powers. We believe there should be better ways to interact than long chat.
+The key idea is to exploit 🌲**tree-of-thoughts** and ✔️**self-consistency** of LLMs and find the **stable** outputs via heavy/concurrent queries against **multiple** LLMs.
 
-Finae's vision is to create a new human-computer interaction, in-between natural language and Python (rigorous than natural language, concised than Python), so called **keyword-oriented** or **hint-oriented** programming styles.
+Think about asking the same question in different words or from different angles. The answer will converge if an LLM really knows it (if the fact was well-spread in the training corpus).
 
-### Design Idea
+This approach works better with multiple LLMs, given that each LLM is a unique representation of its training dataset. And it also works well with smaller models (~7B parameters) as it eliminates hallucinations.
+
+See more 🪐[vision and mission behind Finae](DESIGN.md).
+
+### Samples
+
 
 #### Finae class is called concept.
 
@@ -32,6 +37,7 @@ class Mountain:
 ```
 
 #### Concept Examples
+
 Mountain
 
 ```python
