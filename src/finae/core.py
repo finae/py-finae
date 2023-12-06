@@ -24,7 +24,7 @@ def _line_by_line_parser(llm_output, concepts):
     for line in lines:
         for cls in concepts:
             c = cls(line)
-            if c.__finae_consistent__():
+            if c.consistent():
                 results.append(c)
     return results
 
@@ -51,7 +51,7 @@ class Extraction:
 
     def __init__(self, prompt, concepts):
         self._concepts = [
-            c for c in concepts if hasattr(c, '__finae_invest__')]
+            c for c in concepts if hasattr(c, '__finae_debug__')]
 
         self.id = str(uuid.uuid4()),
         self.prompt = prompt
@@ -70,7 +70,7 @@ class Extraction:
         return self.extracted_concepts
 
 
-def _constructor(self, text, budget=10.0):
+def _constructor(self, text, budget=None):
     """Text could be anything to be parse, prompts, serialized string etc."""
     db = self.__finae_database__
     from_cache = db.retrieve_by_text(text)
@@ -83,8 +83,8 @@ def _constructor(self, text, budget=10.0):
             'score': 0,
             'produced': dict(),
         }
-        self.__finae_invest__(budget)
-        if self.__finae_consistent__():
+        self.invest(budget)
+        if self.consistent():
             db.insert(self.__finae_data__)
 
 
@@ -131,8 +131,12 @@ def _finae_all_attributes(cls):
     return attributes
 
 
-def _finae_invest(self, budget):
+def _finae_invest(self, budget=None):
     all_attributes = self.__finae_all_attributes__()
+    
+    if budget is None:
+        budget = 7 * len(all_attributes)
+
     while budget > 0:
         method = random.choice(all_attributes)
         m = getattr(self, method)
@@ -221,8 +225,8 @@ def Concept(cls):
     setattr(cls, 'score', _finae_score)
     setattr(cls, 'produced', _finae_produced)
     setattr(cls, 'get', _finae_get)
-    setattr(cls, '__finae_consistent__', _finae_consistent)
-    setattr(cls, '__finae_invest__', _finae_invest)
+    setattr(cls, 'consistent', _finae_consistent)
+    setattr(cls, 'invest', _finae_invest)
     setattr(cls, '__finae_all_attributes__', _finae_all_attributes)
     setattr(cls, '__finae_database__', _ConceptDatabase(cls))
     setattr(cls, '__finae_debug__', _finae_debug)
