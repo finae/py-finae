@@ -3,11 +3,18 @@ import inspect
 import os
 import pickle
 import pprint
+import random
 import uuid
+from collections import Counter
 
 from .llm import ask_llm
 
 _CONCEPTS_REGISTRY = []
+
+
+def _most_frequent(input_list):
+    occurence_count = Counter(input_list)
+    return occurence_count.most_common(1)[0][0]
 
 
 def _line_by_line_parser(llm_output, concepts):
@@ -43,7 +50,8 @@ class Extraction:
     """
 
     def __init__(self, prompt, concepts):
-        self._concepts = [c for c in concepts if hasattr(c, '__finae_parse__')]
+        self._concepts = [
+            c for c in concepts if hasattr(c, '__finae_invest__')]
 
         self.id = str(uuid.uuid4()),
         self.prompt = prompt
@@ -62,7 +70,7 @@ class Extraction:
         return self.extracted_concepts
 
 
-def _constructor(self, text):
+def _constructor(self, text, budget=10.0):
     """Text could be anything to be parse, prompts, serialized string etc."""
     db = self.__finae_database__
     from_cache = db.retrieve_by_text(text)
@@ -73,9 +81,9 @@ def _constructor(self, text):
             'id': str(uuid.uuid4()),
             'text': text,
             'score': 0,
-            'method_cache': dict(),
+            'produced': dict(),
         }
-        self.__finae_parse__()
+        self.__finae_invest__(budget)
         if self.__finae_consistent__():
             db.insert(self.__finae_data__)
 
@@ -92,8 +100,22 @@ def _finae_score(self):
     return self.__finae_data__['score']
 
 
+def _finae_produced(self):
+    return self.__finae_data__['produced']
+
+
+def _finae_get(self, key):
+    if key not in self.produced():
+        raise KeyError
+    most = _most_frequent(self.produced()[key])
+    return most
+
+
 def _finae_consistent(self):
-    return self.__finae_score__() >= 1.0
+    for key, value in self.produced().items():
+        if (not value) or (not isinstance(value, list)):
+            return False
+    return True
 
 
 @classmethod
@@ -103,34 +125,29 @@ def _finae_all_attributes(cls):
         if method.startswith('__') or method.endswith('__'):
             continue
         m = getattr(cls, method)
-        if not hasattr(m, '__finae_attribute_weight_base_val__'):
+        if not hasattr(m, '__finae_attribute_price__'):
             continue
         attributes.append(method)
     return attributes
 
 
-def _finae_parse(self):
-    total_weight = sum([getattr(self, method).__finae_attribute_weight_base_val__
-                        for method in self.__finae_all_attributes__()])
-    total_score = 0
-    for method in self.__finae_all_attributes__():
+def _finae_invest(self, budget):
+    all_attributes = self.__finae_all_attributes__()
+    while budget > 0:
+        method = random.choice(all_attributes)
         m = getattr(self, method)
-        weight_base_val = m.__finae_attribute_weight_base_val__
+        price = m.__finae_attribute_price__
+        key = m.__finae_attribute_key__
+        budget = budget - price
 
+        # TODO: May return a Product dataclass instead
         ret_val = m()
         if ret_val is None:
-            if getattr(m, '__finae_attribute_required__') is True:
-                total_score = 0
-                break
+            continue
         else:
-            total_score = total_score + weight_base_val
-
-    if not total_weight:
-        normalized_score = 0
-    else:
-        normalized_score = total_score / total_weight
-
-    self.__finae_data__['score'] = normalized_score
+            if key not in self.produced():
+                self.produced()[key] = list()
+            self.produced()[key].append(ret_val)
 
 
 @classmethod
@@ -198,12 +215,14 @@ class _ConceptDatabase:
 
 def Concept(cls):
     setattr(cls, '__init__', _constructor)
-    setattr(cls, '__finae_query_llm__', _query_llm)
-    setattr(cls, '__finae_id__', _finae_id)
-    setattr(cls, '__finae_text__', _finae_text)
-    setattr(cls, '__finae_score__', _finae_score)
+    setattr(cls, 'query', _query_llm)
+    setattr(cls, 'id', _finae_id)
+    setattr(cls, 'text', _finae_text)
+    setattr(cls, 'score', _finae_score)
+    setattr(cls, 'produced', _finae_produced)
+    setattr(cls, 'get', _finae_get)
     setattr(cls, '__finae_consistent__', _finae_consistent)
-    setattr(cls, '__finae_parse__', _finae_parse)
+    setattr(cls, '__finae_invest__', _finae_invest)
     setattr(cls, '__finae_all_attributes__', _finae_all_attributes)
     setattr(cls, '__finae_database__', _ConceptDatabase(cls))
     setattr(cls, '__finae_debug__', _finae_debug)
@@ -216,24 +235,21 @@ def Attribute(method=None, **kwargs):
     def _harness(method):
         @functools.wraps(method)
         def _wrapper(self, *args, **kwargs):
-            method_cache = self.__finae_data__['method_cache']
-            if method.__name__ in method_cache:
-                return method_cache[method.__name__]['val']
-            else:
-                method_cache[method.__name__] = dict()
             ret_val = None
             try:
                 ret_val = method(self, *args, **kwargs)
             except Exception as e:
-                method_cache[method.__name__]['exception'] = e
                 ret_val = None
-            method_cache[method.__name__]['val'] = ret_val
             return ret_val
 
         setattr(_wrapper, '__finae_attribute_weight_base_val__',
                 kwargs.get('weight', 1.0))
         setattr(_wrapper, '__finae_attribute_required__',
                 kwargs.get('required', False))
+        setattr(_wrapper, '__finae_attribute_price__',
+                kwargs.get('price', 1.0))
+        setattr(_wrapper, '__finae_attribute_key__',
+                kwargs.get('key', method.__name__))
         return _wrapper
 
     if method is None:

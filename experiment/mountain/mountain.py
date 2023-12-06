@@ -67,14 +67,14 @@ class Mountain:
 
     @finae.Attribute(weight=0.01, required=False)
     def index(self):
-        parts = self.__finae_text__().split('.')
+        parts = self.text().split('.')
         i = int(parts[0])
         assert 1 <= i <= 100
         return i
 
     @finae.Attribute
     def long_name(self):
-        parts = self.__finae_text__().split('.')[1].split('-')
+        parts = self.text().split('.')[1].split('-')
         return parts[0].strip()
 
     @finae.Attribute
@@ -100,23 +100,23 @@ class Mountain:
 
     @finae.Attribute
     def altitude_in_meters(self):
-        m = re.search(r'[\d\s,]+m', self.__finae_text__())
+        m = re.search(r'[\d\s,]+m', self.text())
         if m:
             return int(m.group(0).replace('m', '').replace(',', '').strip())
         m = re.search(r'[\d,]+meters', self.text)
         if m:
             return int(m.group(0).replace('meters', '').replace(',', '').strip())
-        raise ValueError(f'can not find meters in : {self.__finae_text__()}')
+        raise ValueError(f'can not find meters in : {self.text()}')
 
     @finae.Attribute(required=False)
     def altitude_in_ft(self):
-        m = re.search(r'[\d\s,]+ft', self.__finae_text__())
+        m = re.search(r'[\d\s,]+ft', self.text())
         if m:
             return int(m.group(0).replace('ft', '').replace(',', '').strip())
-        m = re.search(r'[\d,]+feet', self.__finae_text__())
+        m = re.search(r'[\d,]+feet', self.text())
         if m:
             return int(m.group(0).replace('feet', '').replace(',', '').strip())
-        raise ValueError(f'can not find feet in : {self.__finae_text__()}')
+        raise ValueError(f'can not find feet in : {self.text()}')
 
     def __str__(self):
         return f'{self.index()}, {self.name()}, {self.location()}, {self.altitude_in_meters()} m, {self.altitude_in_ft()} ft'
@@ -127,8 +127,8 @@ def parse(input):
     lines = input.split('\n')
     for line in lines:
         m = Mountain(line)
-        if m.__finae_score__() > 0.9:
-            print(m, m.__finae_score__())
+        if m.score() > 0.9:
+            print(m, m.score())
             mountains.append(m)
 
     Mountain.__finae_debug__()
