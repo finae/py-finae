@@ -70,6 +70,21 @@ class Extraction:
         return self.extracted_concepts
 
 
+class Budget:
+    def __init__(self, num_of_attributes=None):
+        self._num_of_attributes = num_of_attributes
+        self._remain = 70 * num_of_attributes
+        
+    def remain(self):
+        return self._remain
+
+    def spend(self, cost):
+        self._remain = self._remain - cost
+        
+    def split(self):
+        return 
+
+
 def _constructor(self, text, budget=None):
     """Text could be anything to be parse, prompts, serialized string etc."""
     db = self.__finae_database__
@@ -83,7 +98,10 @@ def _constructor(self, text, budget=None):
             'score': 0,
             'produced': dict(),
         }
-        self.invest(budget)
+        if budget is None:
+            all_attributes = self.__finae_all_attributes__()
+            self.budget = Budget(num_of_attributes=len(all_attributes))
+        self.invest(budget=self.budget)
         if self.consistent():
             db.insert(self.__finae_data__)
 
@@ -98,6 +116,13 @@ def _finae_text(self):
 
 def _finae_score(self):
     return self.__finae_data__['score']
+
+
+def _finae_produce(self, key, value):
+    """Produce hook"""
+    if key not in self.produced():
+        self.produced()[key] = list()
+    self.produced()[key].append(value)
 
 
 def _finae_produced(self):
@@ -131,27 +156,22 @@ def _finae_all_attributes(cls):
     return attributes
 
 
-def _finae_invest(self, budget=None):
+def _finae_invest(self, budget):
     all_attributes = self.__finae_all_attributes__()
     
-    if budget is None:
-        budget = 7 * len(all_attributes)
-
     while budget > 0:
         method = random.choice(all_attributes)
         m = getattr(self, method)
         price = m.__finae_attribute_price__
         key = m.__finae_attribute_key__
-        budget = budget - price
+        
+        spend = budget / len(all_attributes)
 
         # TODO: May return a Product dataclass instead
-        ret_val = m()
-        if ret_val is None:
-            continue
-        else:
-            if key not in self.produced():
-                self.produced()[key] = list()
-            self.produced()[key].append(ret_val)
+        cost = m(budget=spend, price=price, key=key, produce=self.produce)
+        budget = budget - cost
+            
+        
 
 
 @classmethod
@@ -223,6 +243,7 @@ def Concept(cls):
     setattr(cls, 'id', _finae_id)
     setattr(cls, 'text', _finae_text)
     setattr(cls, 'score', _finae_score)
+    setattr(cls, 'produce', _finae_produce)
     setattr(cls, 'produced', _finae_produced)
     setattr(cls, 'get', _finae_get)
     setattr(cls, 'consistent', _finae_consistent)
@@ -239,6 +260,15 @@ def Attribute(method=None, **kwargs):
     def _harness(method):
         @functools.wraps(method)
         def _wrapper(self, *args, **kwargs):
+            
+            # Deduct method base price
+            budget = kwargs['budget']
+            price = kwargs['price']
+            budget = budget - price
+            if budget <= 0:
+                return None, kwargs['budget']
+            kwargs['budget'] = budget
+
             ret_val = None
             try:
                 ret_val = method(self, *args, **kwargs)
