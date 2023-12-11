@@ -32,7 +32,7 @@ def _line_by_line_parser(llm_output, concepts):
 class Conversation:
 
     def __init__(self, input):
-        self.id = str(uuid.uuid4()),
+        self.id = str(uuid.uuid4())
         self.input = input
         self.output = ask_llm(input)
 
