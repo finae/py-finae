@@ -7,8 +7,8 @@ from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.output_parser import StrOutputParser
 
-# os.environ['OPENAI_API_BASE'] = "https://shale.live/v1"
-os.environ['OPENAI_API_BASE'] = "http://localhost:8000/v1"
+os.environ['OPENAI_API_BASE'] = "https://shale.live/v1"
+# os.environ['OPENAI_API_BASE'] = "http://localhost:8000/v1"
 os.environ['OPENAI_API_KEY'] = "shale-/vOlxxgbDAD7f5"
 
 _MODEL = 'OpenHermes-2.5-Mistral-7B'

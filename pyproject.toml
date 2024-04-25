@@ -3,7 +3,7 @@
 # package, this name will be registered for you. It will determine how
 # users can install this project, e.g.:
 #
-# $ pip install sampleproject
+# $ pip install finae
 #
 # And where it will live on PyPI: https://pypi.org/project/sampleproject/
 #
@@ -17,7 +17,7 @@ name = "finae"  # Required
 #
 # For a discussion on single-sourcing the version, see
 # https://packaging.python.org/guides/single-sourcing-package-version/
-version = "0.0.1"  # Required
+version = "0.0.2"  # Required
 
 # This is a one-line description or tagline of what your project does. This
 # corresponds to the "Summary" metadata field:
@@ -112,7 +112,7 @@ dependencies = [ # Optional
 # dependencies). Users will be able to install these using the "extras"
 # syntax, for example:
 #
-#   $ pip install sampleproject[dev]
+#   $ pip install finae[dev]
 #
 # Similar to `dependencies` above, these must be valid existing
 # projects.
